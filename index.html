@@ -1154,11 +1154,11 @@
 
                 <div class="filters">
                     <div class="filter-tabs">
-                        <button class="filter-tab" data-filter="all">All <span class="count">(24)</span></button>
-                        <button class="filter-tab active" data-filter="active">Active <span class="count">(8)</span></button>
-                        <button class="filter-tab" data-filter="passed">Passed <span class="count">(12)</span></button>
-                        <button class="filter-tab" data-filter="failed">Failed <span class="count">(3)</span></button>
-                        <button class="filter-tab" data-filter="upcoming">Upcoming <span class="count">(1)</span></button>
+                        <button class="filter-tab" data-filter="all">All <span class="count" id="countAll"></span></button>
+                        <button class="filter-tab active" data-filter="active">Active <span class="count" id="countActive"></span></button>
+                        <button class="filter-tab" data-filter="passed">Passed <span class="count" id="countPassed"></span></button>
+                        <button class="filter-tab" data-filter="failed">Failed <span class="count" id="countFailed"></span></button>
+                        <button class="filter-tab" data-filter="upcoming">Upcoming <span class="count" id="countUpcoming"></span></button>
                     </div>
                     <div class="search-sort">
                         <input type="text" class="search-box" placeholder="Search proposals..." id="searchBox">
@@ -2149,7 +2149,25 @@
             }
         });
 
+        // Update filter counts
+        function updateFilterCounts() {
+            const counts = {
+                all: proposals.length,
+                active: proposals.filter(p => p.status === 'active').length,
+                passed: proposals.filter(p => p.status === 'passed').length,
+                failed: proposals.filter(p => p.status === 'failed').length,
+                upcoming: proposals.filter(p => p.status === 'upcoming').length
+            };
+
+            document.getElementById('countAll').textContent = `(${counts.all})`;
+            document.getElementById('countActive').textContent = `(${counts.active})`;
+            document.getElementById('countPassed').textContent = `(${counts.passed})`;
+            document.getElementById('countFailed').textContent = `(${counts.failed})`;
+            document.getElementById('countUpcoming').textContent = `(${counts.upcoming})`;
+        }
+
         // Initialize
+        updateFilterCounts();
         renderProposals();
         renderDepositsChart();
         renderDepositsTable();
