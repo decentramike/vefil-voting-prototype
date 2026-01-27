@@ -151,41 +151,78 @@
             display: block;
         }
 
-        /* Hero Banner */
-        .hero-banner {
-            background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%);
-            color: white;
-            padding: 3rem 2rem;
-            border-radius: 12px;
+        /* Hero Section */
+        .hero-section {
             margin-bottom: 2rem;
-            text-align: center;
         }
 
-        .hero-banner h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        .hero-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .hero-banner p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a202c;
+            letter-spacing: -0.5px;
         }
 
         .hero-cta {
-            background: white;
-            color: #0066ff;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
             border: none;
-            padding: 1rem 2rem;
+            padding: 0.875rem 1.75rem;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .hero-cta:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.4);
+        }
+
+        .hero-cta svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .hero-description {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+            border-left: 4px solid #0066ff;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 2rem;
+        }
+
+        .hero-description p {
+            color: #4a5568;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .hero-description .label {
+            display: inline-block;
+            background: #0066ff;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
         }
 
         /* Stats Grid */
@@ -856,8 +893,13 @@
                 gap: 1rem;
             }
 
-            .hero-banner h1 {
-                font-size: 1.8rem;
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-title-row {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
             .stats-grid {
@@ -1075,10 +1117,20 @@
         <!-- Proposals Page -->
         <div id="proposals" class="page active">
             <div class="container">
-                <div class="hero-banner">
-                    <h1>veFIL Voting Prototype</h1>
-                    <p>Try out to minting veFIL and voting on proposals that shape the future of Filecoin (note that this a test environment and not linked to real wallets or stake)</p>
-                    <button class="hero-cta" id="lockFILBannerBtn">Lock FIL</button>
+                <div class="hero-section">
+                    <div class="hero-title-row">
+                        <h1 class="hero-title">veFIL Voting Prototype</h1>
+                        <button class="hero-cta" id="lockFILBannerBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            Lock FIL
+                        </button>
+                    </div>
+                    <div class="hero-description">
+                        <span class="label">Test Environment</span>
+                        <p>Try out minting veFIL and voting on proposals that shape the future of Filecoin. This is a prototype environment and is not linked to real wallets or stake.</p>
+                    </div>
                 </div>
 
                 <div class="stats-grid">
