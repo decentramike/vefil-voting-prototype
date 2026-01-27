@@ -859,6 +859,156 @@
         .error-message.active {
             display: block;
         }
+
+        /* Floating Feedback Button */
+        .feedback-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.4);
+            transition: all 0.3s;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feedback-fab:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.5);
+        }
+
+        .feedback-fab svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Feedback Modal */
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 360px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .feedback-modal.active {
+            display: block;
+        }
+
+        .feedback-header {
+            background: #0066ff;
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feedback-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .feedback-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .feedback-body {
+            padding: 1.5rem;
+        }
+
+        .feedback-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-type-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .feedback-type-btn:hover {
+            border-color: #0066ff;
+        }
+
+        .feedback-type-btn.active {
+            background: #e6f2ff;
+            border-color: #0066ff;
+            color: #0066ff;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-textarea:focus {
+            outline: none;
+            border-color: #0066ff;
+        }
+
+        .feedback-submit {
+            width: 100%;
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .feedback-submit:hover {
+            background: #0052cc;
+        }
+
+        @media (max-width: 480px) {
+            .feedback-modal {
+                width: calc(100% - 2rem);
+                right: 1rem;
+                bottom: 5rem;
+            }
+
+            .feedback-fab {
+                right: 1rem;
+                bottom: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1157,12 +1307,37 @@
         </div>
     </div>
 
+    <!-- Floating Feedback Button -->
+    <button class="feedback-fab" onclick="toggleFeedbackModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        Feedback
+    </button>
+
+    <!-- Feedback Modal -->
+    <div class="feedback-modal" id="feedbackModal">
+        <div class="feedback-header">
+            <h3>Send Feedback</h3>
+            <button class="feedback-close" onclick="toggleFeedbackModal()">&times;</button>
+        </div>
+        <div class="feedback-body">
+            <div class="feedback-type-selector">
+                <button class="feedback-type-btn active" data-type="feedback" onclick="selectFeedbackType(this)">💡 Feedback</button>
+                <button class="feedback-type-btn" data-type="bug" onclick="selectFeedbackType(this)">🐛 Bug Report</button>
+            </div>
+            <textarea class="feedback-textarea" id="feedbackMessage" placeholder="Tell us what's on your mind..."></textarea>
+            <button class="feedback-submit" onclick="submitFeedback()">Send Feedback</button>
+        </div>
+    </div>
+
     <footer>
         <div class="container">
             <ul class="footer-links">
                 <li><a href="https://docs.filecoin.io" target="_blank">Docs</a></li>
                 <li><a href="https://github.com/filecoin-project/FIPs" target="_blank">FIPs</a></li>
                 <li><a href="https://filecoin.io" target="_blank">Filecoin</a></li>
+                <li><a href="https://gleaming-kangaroo-96077c.netlify.app/" target="_blank">Tokenomics Workbench</a></li>
             </ul>
         </div>
     </footer>
@@ -1830,6 +2005,50 @@
                 </tr>
             `).join('');
         }
+
+        // Feedback Modal
+        let feedbackType = 'feedback';
+
+        function toggleFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            modal.classList.toggle('active');
+        }
+
+        function selectFeedbackType(btn) {
+            document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            feedbackType = btn.dataset.type;
+        }
+
+        function submitFeedback() {
+            const message = document.getElementById('feedbackMessage').value.trim();
+            if (!message) {
+                alert('Please enter your feedback message.');
+                return;
+            }
+
+            const subject = feedbackType === 'bug'
+                ? encodeURIComponent('Bug Report: veFIL Governance Tool')
+                : encodeURIComponent('Feedback: veFIL Governance Tool');
+            const body = encodeURIComponent(`Type: ${feedbackType === 'bug' ? 'Bug Report' : 'Feedback'}\n\n${message}\n\n---\nSent from veFIL Governance Tool`);
+
+            window.location.href = `mailto:michael@fil.org?subject=${subject}&body=${body}`;
+
+            // Clear and close
+            document.getElementById('feedbackMessage').value = '';
+            toggleFeedbackModal();
+        }
+
+        // Close feedback modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('feedbackModal');
+            const fab = document.querySelector('.feedback-fab');
+            if (modal.classList.contains('active') &&
+                !modal.contains(e.target) &&
+                !fab.contains(e.target)) {
+                modal.classList.remove('active');
+            }
+        });
 
         // Initialize
         renderProposals();
