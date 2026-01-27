@@ -929,7 +929,7 @@
             <div class="container">
                 <div class="analytics-header">
                     <h1>Governance Analytics</h1>
-                    <p>Track participation, decentralization, and fee distribution patterns</p>
+                    <p>Track participation, decentralization, and deposit patterns</p>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-label">Total veFIL</div>
@@ -949,24 +949,24 @@
                         </div>
                     </div>
                     <div class="analytics-toggle">
-                        <button class="toggle-btn active" data-view="fees">Fee Distribution</button>
+                        <button class="toggle-btn active" data-view="deposits">Deposit Distribution</button>
                         <button class="toggle-btn" data-view="holders">Holder Distribution</button>
                     </div>
                 </div>
 
-                <div id="feesView" class="analytics-view">
+                <div id="depositsView" class="analytics-view">
                     <div class="chart-container">
-                        <h2 class="chart-title">veFIL Fees Last 8 Weeks</h2>
-                        <div class="chart" id="feesChart"></div>
+                        <h2 class="chart-title">veFIL Deposits Last 8 Weeks</h2>
+                        <div class="chart" id="depositsChart"></div>
                     </div>
                     <div class="chart-container">
-                        <h2 class="chart-title">Fee Distribution Table</h2>
+                        <h2 class="chart-title">Deposit Distribution Table</h2>
                         <div class="table-container">
-                            <table id="feesTable">
+                            <table id="depositsTable">
                                 <thead>
                                     <tr>
                                         <th>Week</th>
-                                        <th>Total Fees (FIL)</th>
+                                        <th>Total Deposits (FIL)</th>
                                         <th>Date Range</th>
                                     </tr>
                                 </thead>
@@ -1266,15 +1266,15 @@
             }
         ];
 
-        const feesData = [
-            { week: 'Week 1', fees: 12500, dateRange: 'Dec 1-7, 2024' },
-            { week: 'Week 2', fees: 15200, dateRange: 'Dec 8-14, 2024' },
-            { week: 'Week 3', fees: 18900, dateRange: 'Dec 15-21, 2024' },
-            { week: 'Week 4', fees: 14300, dateRange: 'Dec 22-28, 2024' },
-            { week: 'Week 5', fees: 16800, dateRange: 'Dec 29-Jan 4, 2025' },
-            { week: 'Week 6', fees: 21500, dateRange: 'Jan 5-11, 2025' },
-            { week: 'Week 7', fees: 19200, dateRange: 'Jan 12-18, 2025' },
-            { week: 'Week 8', fees: 23400, dateRange: 'Jan 19-25, 2025' }
+        const depositsData = [
+            { week: 'Week 1', deposits: 12500, dateRange: 'Dec 1-7, 2024' },
+            { week: 'Week 2', deposits: 15200, dateRange: 'Dec 8-14, 2024' },
+            { week: 'Week 3', deposits: 18900, dateRange: 'Dec 15-21, 2024' },
+            { week: 'Week 4', deposits: 14300, dateRange: 'Dec 22-28, 2024' },
+            { week: 'Week 5', deposits: 16800, dateRange: 'Dec 29-Jan 4, 2025' },
+            { week: 'Week 6', deposits: 21500, dateRange: 'Jan 5-11, 2025' },
+            { week: 'Week 7', deposits: 19200, dateRange: 'Jan 12-18, 2025' },
+            { week: 'Week 8', deposits: 23400, dateRange: 'Jan 19-25, 2025' }
         ];
 
         const holdersData = [
@@ -1771,36 +1771,36 @@
                 document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
-                document.getElementById('feesView').style.display = view === 'fees' ? 'block' : 'none';
+                document.getElementById('depositsView').style.display = view === 'deposits' ? 'block' : 'none';
                 document.getElementById('holdersView').style.display = view === 'holders' ? 'block' : 'none';
             });
         });
 
-        function renderFeesChart() {
-            const chart = document.getElementById('feesChart');
-            const maxFees = Math.max(...feesData.map(d => d.fees));
-            
-            chart.innerHTML = feesData.map(d => `
-                <div class="bar" style="height: ${(d.fees / maxFees * 100)}%;">
+        function renderDepositsChart() {
+            const chart = document.getElementById('depositsChart');
+            const maxDeposits = Math.max(...depositsData.map(d => d.deposits));
+
+            chart.innerHTML = depositsData.map(d => `
+                <div class="bar" style="height: ${(d.deposits / maxDeposits * 100)}%;">
                     <div class="bar-label">${d.week}</div>
                 </div>
             `).join('');
         }
 
-        function renderFeesTable() {
-            const tbody = document.querySelector('#feesTable tbody');
-            const totalFees = feesData.reduce((sum, d) => sum + d.fees, 0);
-            
-            tbody.innerHTML = feesData.map(d => `
+        function renderDepositsTable() {
+            const tbody = document.querySelector('#depositsTable tbody');
+            const totalDeposits = depositsData.reduce((sum, d) => sum + d.deposits, 0);
+
+            tbody.innerHTML = depositsData.map(d => `
                 <tr>
                     <td>${d.week}</td>
-                    <td>${d.fees.toLocaleString()} FIL</td>
+                    <td>${d.deposits.toLocaleString()} FIL</td>
                     <td>${d.dateRange}</td>
                 </tr>
             `).join('') + `
                 <tr style="font-weight: 600; background: #f7fafc;">
                     <td>Total</td>
-                    <td>${totalFees.toLocaleString()} FIL</td>
+                    <td>${totalDeposits.toLocaleString()} FIL</td>
                     <td>-</td>
                 </tr>
             `;
@@ -1833,8 +1833,8 @@
 
         // Initialize
         renderProposals();
-        renderFeesChart();
-        renderFeesTable();
+        renderDepositsChart();
+        renderDepositsTable();
         renderHoldersChart();
         renderHoldersTable();
     </script>
