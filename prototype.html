@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filecoin veFIL Governance Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0066ff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #0066ff;
+        }
+
+        .wallet-btn {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .wallet-btn:hover {
+            background: #0052cc;
+        }
+
+        .wallet-connected {
+            background: #e6f2ff;
+            color: #0066ff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid #0066ff;
+        }
+
+        /* Main Content */
+        main {
+            min-height: calc(100vh - 200px);
+            padding: 2rem 0;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .hero-banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-banner p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-cta {
+            background: white;
+            color: #0066ff;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-tab:hover {
+            border-color: #0066ff;
+        }
+
+        .filter-tab.active {
+            background: #0066ff;
+            color: white;
+            border-color: #0066ff;
+        }
+
+        .filter-tab .count {
+            opacity: 0.7;
+            margin-left: 0.5rem;
+        }
+
+        .search-sort {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .sort-select {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Proposals List */
+        .proposals-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .proposal-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .proposal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-passed {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-upcoming {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .proposal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .proposal-meta {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .proposal-description {
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .proposal-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .proposal-stat {
+            font-size: 0.9rem;
+        }
+
+        .proposal-stat-label {
+            color: #718096;
+            margin-bottom: 0.25rem;
+        }
+
+        .proposal-stat-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0066ff;
+            transition: width 0.3s;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Lock FIL Form */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0066ff;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-with-button input {
+            flex: 1;
+        }
+
+        .max-btn {
+            padding: 0.75rem 1rem;
+            background: #e6f2ff;
+            color: #0066ff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .duration-presets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .duration-preset {
+            padding: 0.5rem;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .duration-preset:hover,
+        .duration-preset.active {
+            background: #0066ff;
+            color: white;
+            border-color: #0066ff;
+        }
+
+        .preview-box {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .preview-label {
+            color: #718096;
+        }
+
+        .preview-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #0052cc;
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Proposal Detail */
+        .proposal-detail {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .detail-header {
+            margin-bottom: 2rem;
+        }
+
+        .detail-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .detail-meta {
+            display: flex;
+            gap: 2rem;
+            color: #718096;
+            flex-wrap: wrap;
+        }
+
+        .detail-body {
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .voting-module {
+            background: #f7fafc;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .voting-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .vote-option {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .vote-option:hover {
+            border-color: #0066ff;
+        }
+
+        .vote-option.selected {
+            background: #0066ff;
+            color: white;
+            border-color: #0066ff;
+        }
+
+        .vote-option input[type="radio"] {
+            display: none;
+        }
+
+        .results-module {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .result-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            font-weight: 600;
+        }
+
+        .result-percentage {
+            color: #718096;
+        }
+
+        .voter-table {
+            margin-top: 2rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Analytics */
+        .analytics-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .analytics-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .toggle-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: #0066ff;
+            color: white;
+            border-color: #0066ff;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            padding: 1rem 0;
+        }
+
+        .bar {
+            flex: 1;
+            background: #0066ff;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .bar:hover {
+            background: #0052cc;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #718096;
+            white-space: nowrap;
+        }
+
+        /* Account Panel */
+        .account-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100%;
+            background: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            transition: right 0.3s;
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        .account-panel.active {
+            right: 0;
+        }
+
+        .account-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-body {
+            padding: 1.5rem;
+        }
+
+        .account-section {
+            margin-bottom: 2rem;
+        }
+
+        .account-section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4a5568;
+        }
+
+        .account-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .account-label {
+            color: #718096;
+        }
+
+        .account-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .claim-section {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: #718096;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #0066ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero-banner h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .account-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="nav-logo">veFIL Governance</div>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link active" data-page="proposals">Proposals</a></li>
+                <li><a href="#" class="nav-link" data-page="analytics">Analytics</a></li>
+            </ul>
+            <button class="wallet-btn" id="walletBtn">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Proposals Page -->
+        <div id="proposals" class="page active">
+            <div class="container">
+                <div class="hero-banner">
+                    <h1>Participate in Filecoin Governance</h1>
+                    <p>Lock FIL to mint veFIL and vote on proposals that shape the future of Filecoin</p>
+                    <button class="hero-cta" id="lockFILBannerBtn">Lock FIL</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total veFIL</div>
+                        <div class="stat-value" id="totalVeFIL">1,234,567</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Voters</div>
+                        <div class="stat-value" id="totalVoters">2,456</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Proposals</div>
+                        <div class="stat-value" id="activeProposals">8</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Locked FIL</div>
+                        <div class="stat-value" id="totalLocked">987,654</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All <span class="count">(24)</span></button>
+                        <button class="filter-tab" data-filter="active">Active <span class="count">(8)</span></button>
+                        <button class="filter-tab" data-filter="passed">Passed <span class="count">(12)</span></button>
+                        <button class="filter-tab" data-filter="failed">Failed <span class="count">(3)</span></button>
+                        <button class="filter-tab" data-filter="upcoming">Upcoming <span class="count">(1)</span></button>
+                    </div>
+                    <div class="search-sort">
+                        <input type="text" class="search-box" placeholder="Search proposals..." id="searchBox">
+                        <select class="sort-select" id="sortSelect">
+                            <option value="newest">Newest</option>
+                            <option value="ending-soon">Ending Soon</option>
+                            <option value="oldest">Oldest</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="proposals-list" id="proposalsList"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analytics" class="page">
+            <div class="container">
+                <div class="analytics-header">
+                    <h1>Governance Analytics</h1>
+                    <p>Track participation, decentralization, and fee distribution patterns</p>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total veFIL</div>
+                            <div class="stat-value">1,234,567</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Locked FIL</div>
+                            <div class="stat-value">987,654</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Holders</div>
+                            <div class="stat-value">2,456</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg Lock Duration</div>
+                            <div class="stat-value">127 days</div>
+                        </div>
+                    </div>
+                    <div class="analytics-toggle">
+                        <button class="toggle-btn active" data-view="fees">Fee Distribution</button>
+                        <button class="toggle-btn" data-view="holders">Holder Distribution</button>
+                    </div>
+                </div>
+
+                <div id="feesView" class="analytics-view">
+                    <div class="chart-container">
+                        <h2 class="chart-title">veFIL Fees Last 8 Weeks</h2>
+                        <div class="chart" id="feesChart"></div>
+                    </div>
+                    <div class="chart-container">
+                        <h2 class="chart-title">Fee Distribution Table</h2>
+                        <div class="table-container">
+                            <table id="feesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Week</th>
+                                        <th>Total Fees (FIL)</th>
+                                        <th>Date Range</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="holdersView" class="analytics-view" style="display: none;">
+                    <div class="chart-container">
+                        <h2 class="chart-title">veFIL Holder Distribution</h2>
+                        <div class="chart" id="holdersChart"></div>
+                    </div>
+                    <div class="chart-container">
+                        <h2 class="chart-title">Top Holders</h2>
+                        <div class="table-container">
+                            <table id="holdersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Address</th>
+                                        <th>veFIL</th>
+                                        <th>Share %</th>
+                                        <th>Unlock Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lock FIL Modal -->
+    <div class="modal" id="lockModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Lock FIL</h2>
+                <button class="modal-close" onclick="closeLockModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="success-message" id="lockSuccess"></div>
+                <div class="error-message" id="lockError"></div>
+                
+                <div class="form-group">
+                    <label class="form-label">Lock Amount (FIL)</label>
+                    <div class="input-with-button">
+                        <input type="number" class="form-input" id="lockAmount" placeholder="0.00" min="0" step="0.01">
+                        <button class="max-btn" onclick="setMaxAmount()">MAX</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Lock Duration</label>
+                    <div class="duration-presets">
+                        <button class="duration-preset" data-days="7">7 days</button>
+                        <button class="duration-preset" data-days="30">30 days</button>
+                        <button class="duration-preset" data-days="90">90 days</button>
+                        <button class="duration-preset" data-days="180">180 days</button>
+                        <button class="duration-preset" data-days="365">1 year</button>
+                        <button class="duration-preset" data-days="730">2 years</button>
+                    </div>
+                    <input type="range" class="form-input" id="durationSlider" min="7" max="730" value="90" style="margin-top: 1rem;">
+                    <div style="text-align: center; color: #718096; margin-top: 0.5rem;">
+                        <span id="selectedDuration">90</span> days
+                    </div>
+                </div>
+
+                <div class="preview-box">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Preview</h3>
+                    <div class="preview-item">
+                        <span class="preview-label">You will receive</span>
+                        <span class="preview-value" id="previewVeFIL">0 veFIL</span>
+                    </div>
+                    <div class="preview-item">
+                        <span class="preview-label">Lock multiplier</span>
+                        <span class="preview-value" id="previewMultiplier">1.00x</span>
+                    </div>
+                    <div class="preview-item">
+                        <span class="preview-label">Lock ends on</span>
+                        <span class="preview-value" id="previewEndDate">-</span>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; font-size: 0.9rem; color: #718096;">
+                        <strong>Formula:</strong> veFIL = FIL × (lock days / 730) × multiplier
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeLockModal()">Cancel</button>
+                <button class="btn-primary" id="lockContinueBtn" disabled onclick="submitLock()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proposal Detail Modal -->
+    <div class="modal" id="proposalModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="proposalModalTitle">Proposal Details</h2>
+                <button class="modal-close" onclick="closeProposalModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="success-message" id="voteSuccess"></div>
+                <div class="error-message" id="voteError"></div>
+                
+                <div class="proposal-detail" id="proposalDetailContent"></div>
+                
+                <div class="voting-module" id="votingModule" style="display: none;">
+                    <h3 style="margin-bottom: 1rem;">Cast Your Vote</h3>
+                    <div class="voting-options">
+                        <label class="vote-option">
+                            <input type="radio" name="vote" value="for">
+                            <div>✓ For</div>
+                        </label>
+                        <label class="vote-option">
+                            <input type="radio" name="vote" value="against">
+                            <div>✗ Against</div>
+                        </label>
+                        <label class="vote-option">
+                            <input type="radio" name="vote" value="abstain">
+                            <div>− Abstain</div>
+                        </label>
+                    </div>
+                    <button class="btn-primary" id="submitVoteBtn" disabled onclick="submitVote()" style="width: 100%;">Submit Vote</button>
+                </div>
+
+                <div class="results-module" id="resultsModule"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Panel -->
+    <div class="account-panel" id="accountPanel">
+        <div class="account-header">
+            <h2>My Account</h2>
+            <button class="modal-close" onclick="closeAccountPanel()">&times;</button>
+        </div>
+        <div class="account-body">
+            <div class="account-section">
+                <div class="account-section-title">Wallet</div>
+                <div class="account-item">
+                    <span class="account-label">Address</span>
+                    <span class="account-value" id="accountAddress">-</span>
+                </div>
+                <button class="btn-secondary" onclick="disconnectWallet()" style="width: 100%; margin-top: 0.5rem;">Disconnect</button>
+            </div>
+
+            <div class="account-section">
+                <div class="account-section-title">Balances</div>
+                <div class="account-item">
+                    <span class="account-label">FIL Balance</span>
+                    <span class="account-value" id="accountFIL">0 FIL</span>
+                </div>
+                <div class="account-item">
+                    <span class="account-label">Locked FIL</span>
+                    <span class="account-value" id="accountLockedFIL">0 FIL</span>
+                </div>
+                <div class="account-item">
+                    <span class="account-label">Your veFIL</span>
+                    <span class="account-value" id="accountVeFIL">0 veFIL</span>
+                </div>
+                <div class="account-item">
+                    <span class="account-label">Estimated APR</span>
+                    <span class="account-value" id="accountAPR">0%</span>
+                </div>
+            </div>
+
+            <div class="account-section">
+                <div class="account-section-title">Active Locks</div>
+                <div id="activeLocks">
+                    <p style="color: #718096; text-align: center;">No active locks</p>
+                </div>
+            </div>
+
+            <div class="account-section claim-section">
+                <div class="account-section-title">Rewards</div>
+                <div class="account-item">
+                    <span class="account-label">Claimable</span>
+                    <span class="account-value" id="accountClaimable">0 FIL</span>
+                </div>
+                <button class="btn-primary" id="claimBtn" disabled onclick="claimRewards()" style="width: 100%; margin-top: 1rem;">Claim Rewards</button>
+            </div>
+
+            <button class="btn-primary" onclick="openLockModal()" style="width: 100%; margin-top: 1rem;">Lock FIL</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <ul class="footer-links">
+                <li><a href="https://docs.filecoin.io" target="_blank">Docs</a></li>
+                <li><a href="https://github.com/filecoin-project/FIPs" target="_blank">FIPs</a></li>
+                <li><a href="https://filecoin.io" target="_blank">Filecoin</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        // Sample data
+        const proposals = [
+            {
+                id: 1,
+                title: "FIP-0001: Increase Storage Provider Rewards",
+                description: "Proposal to increase rewards for storage providers to incentivize network growth and improve service quality.",
+                status: "active",
+                proposer: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+                created: "2025-01-20",
+                startTime: "2025-01-21",
+                endTime: "2025-02-04",
+                snapshotBlock: "3456789",
+                quorumRequired: 30,
+                quorumCurrent: 22.07,
+                votesFor: 123456,
+                votesAgainst: 45678,
+                votesAbstain: 12345,
+                totalVotes: 181479,
+                voters: []
+            },
+            {
+                id: 2,
+                title: "FIP-0002: Network Upgrade Parameters",
+                description: "Adjust network parameters to optimize performance and reduce gas costs for common operations.",
+                status: "active",
+                proposer: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+                created: "2025-01-18",
+                startTime: "2025-01-19",
+                endTime: "2025-02-02",
+                snapshotBlock: "3445678",
+                quorumRequired: 30,
+                quorumCurrent: 18.5,
+                votesFor: 98765,
+                votesAgainst: 23456,
+                votesAbstain: 8901,
+                totalVotes: 131122,
+                voters: []
+            },
+            {
+                id: 3,
+                title: "FIP-0003: Treasury Fund Allocation",
+                description: "Proposal to allocate treasury funds for ecosystem development and community grants program.",
+                status: "passed",
+                proposer: "0x1234567890abcdef1234567890abcdef12345678",
+                created: "2025-01-10",
+                startTime: "2025-01-11",
+                endTime: "2025-01-25",
+                snapshotBlock: "3423456",
+                quorumRequired: 30,
+                quorumCurrent: 35.2,
+                votesFor: 234567,
+                votesAgainst: 45678,
+                votesAbstain: 12345,
+                totalVotes: 292590,
+                voters: [
+                    { address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", power: 45678, share: 15.61 },
+                    { address: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063", power: 34567, share: 11.82 },
+                    { address: "0x1234567890abcdef1234567890abcdef12345678", power: 23456, share: 8.02 }
+                ]
+            },
+            {
+                id: 4,
+                title: "FIP-0004: Governance Process Update",
+                description: "Update governance voting process to include delegation and improve participation rates.",
+                status: "failed",
+                proposer: "0xabcdef1234567890abcdef1234567890abcdef12",
+                created: "2025-01-05",
+                startTime: "2025-01-06",
+                endTime: "2025-01-20",
+                snapshotBlock: "3412345",
+                quorumRequired: 30,
+                quorumCurrent: 15.3,
+                votesFor: 45678,
+                votesAgainst: 78901,
+                votesAbstain: 5432,
+                totalVotes: 130011,
+                voters: []
+            },
+            {
+                id: 5,
+                title: "FIP-0005: New Mining Algorithm Implementation",
+                description: "Proposal to implement a new mining algorithm that improves efficiency and reduces energy consumption.",
+                status: "upcoming",
+                proposer: "0x9876543210fedcba9876543210fedcba98765432",
+                created: "2025-01-26",
+                startTime: "2025-01-30",
+                endTime: "2025-02-13",
+                snapshotBlock: "3467890",
+                quorumRequired: 30,
+                quorumCurrent: 0,
+                votesFor: 0,
+                votesAgainst: 0,
+                votesAbstain: 0,
+                totalVotes: 0,
+                voters: []
+            }
+        ];
+
+        const feesData = [
+            { week: 'Week 1', fees: 12500, dateRange: 'Dec 1-7, 2024' },
+            { week: 'Week 2', fees: 15200, dateRange: 'Dec 8-14, 2024' },
+            { week: 'Week 3', fees: 18900, dateRange: 'Dec 15-21, 2024' },
+            { week: 'Week 4', fees: 14300, dateRange: 'Dec 22-28, 2024' },
+            { week: 'Week 5', fees: 16800, dateRange: 'Dec 29-Jan 4, 2025' },
+            { week: 'Week 6', fees: 21500, dateRange: 'Jan 5-11, 2025' },
+            { week: 'Week 7', fees: 19200, dateRange: 'Jan 12-18, 2025' },
+            { week: 'Week 8', fees: 23400, dateRange: 'Jan 19-25, 2025' }
+        ];
+
+        const holdersData = [
+            { rank: 1, address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', veFIL: 145678, share: 11.8, unlock: '2026-01-15' },
+            { rank: 2, address: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', veFIL: 123456, share: 10.0, unlock: '2025-12-20' },
+            { rank: 3, address: '0x1234567890abcdef1234567890abcdef12345678', veFIL: 98765, share: 8.0, unlock: '2026-03-10' },
+            { rank: 4, address: '0xabcdef1234567890abcdef1234567890abcdef12', veFIL: 87654, share: 7.1, unlock: '2025-11-05' },
+            { rank: 5, address: '0x9876543210fedcba9876543210fedcba98765432', veFIL: 76543, share: 6.2, unlock: '2026-02-28' },
+            { rank: 6, address: '0x5678901234abcdef5678901234abcdef56789012', veFIL: 65432, share: 5.3, unlock: '2025-10-15' },
+            { rank: 7, address: '0xfedcba9876543210fedcba9876543210fedcba98', veFIL: 54321, share: 4.4, unlock: '2026-04-20' },
+            { rank: 8, address: '0x2468013579bdfac2468013579bdfac246801357', veFIL: 43210, share: 3.5, unlock: '2025-09-30' }
+        ];
+
+        // State
+        let walletConnected = false;
+        let userAddress = '';
+        let userFIL = 1500.75;
+        let userVeFIL = 0;
+        let userLockedFIL = 0;
+        let currentFilter = 'all';
+        let currentSort = 'newest';
+        let lockAmount = 0;
+        let lockDuration = 90;
+        let selectedProposal = null;
+        let userVotes = {};
+
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.dataset.page;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(page).classList.add('active');
+            });
+        });
+
+        // Wallet connection
+        document.getElementById('walletBtn').addEventListener('click', () => {
+            if (!walletConnected) {
+                connectWallet();
+            } else {
+                toggleAccountPanel();
+            }
+        });
+
+        function connectWallet() {
+            // Simulate wallet connection
+            walletConnected = true;
+            userAddress = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb';
+            
+            const walletBtn = document.getElementById('walletBtn');
+            walletBtn.textContent = userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+            walletBtn.className = 'wallet-connected';
+            
+            updateAccountPanel();
+        }
+
+        function disconnectWallet() {
+            walletConnected = false;
+            userAddress = '';
+            userVeFIL = 0;
+            userLockedFIL = 0;
+            
+            const walletBtn = document.getElementById('walletBtn');
+            walletBtn.textContent = 'Connect Wallet';
+            walletBtn.className = 'wallet-btn';
+            
+            closeAccountPanel();
+        }
+
+        function toggleAccountPanel() {
+            const panel = document.getElementById('accountPanel');
+            panel.classList.toggle('active');
+        }
+
+        function closeAccountPanel() {
+            document.getElementById('accountPanel').classList.remove('active');
+        }
+
+        function updateAccountPanel() {
+            document.getElementById('accountAddress').textContent = 
+                userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+            document.getElementById('accountFIL').textContent = userFIL.toFixed(2) + ' FIL';
+            document.getElementById('accountLockedFIL').textContent = userLockedFIL.toFixed(2) + ' FIL';
+            document.getElementById('accountVeFIL').textContent = userVeFIL.toFixed(2) + ' veFIL';
+            document.getElementById('accountAPR').textContent = '12.5%';
+            
+            if (userLockedFIL > 0) {
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + lockDuration);
+                const remainingDays = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+                
+                document.getElementById('activeLocks').innerHTML = `
+                    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="color: #718096;">Amount</span>
+                            <span style="font-weight: 600;">${userLockedFIL.toFixed(2)} FIL</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #718096;">Remaining</span>
+                            <span style="font-weight: 600; color: #0066ff;">${remainingDays} days</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const claimable = userVeFIL * 0.05;
+            document.getElementById('accountClaimable').textContent = claimable.toFixed(2) + ' FIL';
+            document.getElementById('claimBtn').disabled = claimable === 0;
+        }
+
+        // Proposals
+        function renderProposals() {
+            let filtered = proposals;
+            
+            if (currentFilter !== 'all') {
+                filtered = proposals.filter(p => p.status === currentFilter);
+            }
+            
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.title.toLowerCase().includes(searchTerm) || 
+                    p.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            filtered.sort((a, b) => {
+                if (currentSort === 'newest') {
+                    return new Date(b.created) - new Date(a.created);
+                } else if (currentSort === 'oldest') {
+                    return new Date(a.created) - new Date(b.created);
+                } else if (currentSort === 'ending-soon') {
+                    return new Date(a.endTime) - new Date(b.endTime);
+                }
+            });
+            
+            const container = document.getElementById('proposalsList');
+            container.innerHTML = filtered.map(p => `
+                <div class="proposal-card" onclick="openProposal(${p.id})">
+                    <div class="proposal-header">
+                        <div>
+                            <div class="status-badge status-${p.status}">${p.status.toUpperCase()}</div>
+                        </div>
+                        <div style="text-align: right; color: #718096; font-size: 0.9rem;">
+                            ${getTimeRemaining(p)}
+                        </div>
+                    </div>
+                    <h3 class="proposal-title">${p.title}</h3>
+                    <div class="proposal-meta">
+                        Proposed by ${p.proposer.substring(0, 6)}...${p.proposer.substring(38)} • 
+                        Created ${formatDate(p.created)}
+                    </div>
+                    <p class="proposal-description">${p.description}</p>
+                    <div class="proposal-stats">
+                        <div class="proposal-stat">
+                            <div class="proposal-stat-label">Quorum Progress</div>
+                            <div class="proposal-stat-value">${p.quorumCurrent.toFixed(2)}% of ${p.quorumRequired}%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${(p.quorumCurrent / p.quorumRequired * 100).toFixed(2)}%"></div>
+                            </div>
+                        </div>
+                        <div class="proposal-stat">
+                            <div class="proposal-stat-label">Total Votes</div>
+                            <div class="proposal-stat-value">${p.totalVotes.toLocaleString()} veFIL</div>
+                        </div>
+                        <div class="proposal-stat">
+                            <div class="proposal-stat-label">Current Split</div>
+                            <div class="proposal-stat-value">
+                                ${(p.votesFor / p.totalVotes * 100).toFixed(1)}% For / 
+                                ${(p.votesAgainst / p.totalVotes * 100).toFixed(1)}% Against
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getTimeRemaining(proposal) {
+            const now = new Date();
+            const end = new Date(proposal.endTime);
+            const diff = end - now;
+            
+            if (proposal.status === 'upcoming') {
+                const start = new Date(proposal.startTime);
+                const startDiff = start - now;
+                const days = Math.ceil(startDiff / (1000 * 60 * 60 * 24));
+                return `Starts in ${days} days`;
+            } else if (proposal.status === 'active') {
+                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                return `${days} days remaining`;
+            } else {
+                return `Ended ${formatDate(proposal.endTime)}`;
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { month: 'short', day: 'numeric', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                currentFilter = tab.dataset.filter;
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderProposals();
+            });
+        });
+
+        // Search
+        document.getElementById('searchBox').addEventListener('input', () => {
+            renderProposals();
+        });
+
+        // Sort
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            renderProposals();
+        });
+
+        // Lock FIL Modal
+        function openLockModal() {
+            if (!walletConnected) {
+                alert('Please connect your wallet first');
+                return;
+            }
+            document.getElementById('lockModal').classList.add('active');
+            updateLockPreview();
+        }
+
+        function closeLockModal() {
+            document.getElementById('lockModal').classList.remove('active');
+            document.getElementById('lockAmount').value = '';
+            lockAmount = 0;
+            updateLockPreview();
+        }
+
+        document.getElementById('lockFILBannerBtn').addEventListener('click', openLockModal);
+
+        document.getElementById('lockAmount').addEventListener('input', (e) => {
+            lockAmount = parseFloat(e.target.value) || 0;
+            updateLockPreview();
+        });
+
+        document.querySelectorAll('.duration-preset').forEach(preset => {
+            preset.addEventListener('click', (e) => {
+                const days = parseInt(preset.dataset.days);
+                lockDuration = days;
+                document.getElementById('durationSlider').value = days;
+                document.getElementById('selectedDuration').textContent = days;
+                document.querySelectorAll('.duration-preset').forEach(p => p.classList.remove('active'));
+                preset.classList.add('active');
+                updateLockPreview();
+            });
+        });
+
+        document.getElementById('durationSlider').addEventListener('input', (e) => {
+            lockDuration = parseInt(e.target.value);
+            document.getElementById('selectedDuration').textContent = lockDuration;
+            document.querySelectorAll('.duration-preset').forEach(p => p.classList.remove('active'));
+            updateLockPreview();
+        });
+
+        function setMaxAmount() {
+            document.getElementById('lockAmount').value = userFIL.toFixed(2);
+            lockAmount = userFIL;
+            updateLockPreview();
+        }
+
+        function updateLockPreview() {
+            const multiplier = lockDuration / 730;
+            const veFIL = lockAmount * multiplier;
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + lockDuration);
+            
+            document.getElementById('previewVeFIL').textContent = veFIL.toFixed(2) + ' veFIL';
+            document.getElementById('previewMultiplier').textContent = multiplier.toFixed(2) + 'x';
+            document.getElementById('previewEndDate').textContent = formatDate(endDate.toISOString().split('T')[0]);
+            
+            const continueBtn = document.getElementById('lockContinueBtn');
+            continueBtn.disabled = lockAmount <= 0 || lockAmount > userFIL;
+        }
+
+        function submitLock() {
+            if (lockAmount <= 0 || lockAmount > userFIL) {
+                document.getElementById('lockError').textContent = 'Invalid lock amount';
+                document.getElementById('lockError').classList.add('active');
+                return;
+            }
+            
+            // Simulate transaction
+            setTimeout(() => {
+                userFIL -= lockAmount;
+                userLockedFIL += lockAmount;
+                const multiplier = lockDuration / 730;
+                userVeFIL += lockAmount * multiplier;
+                
+                updateAccountPanel();
+                
+                document.getElementById('lockSuccess').textContent = 'FIL locked successfully! Your veFIL has been minted.';
+                document.getElementById('lockSuccess').classList.add('active');
+                
+                setTimeout(() => {
+                    closeLockModal();
+                    document.getElementById('lockSuccess').classList.remove('active');
+                }, 2000);
+            }, 1500);
+        }
+
+        function claimRewards() {
+            const claimable = userVeFIL * 0.05;
+            if (claimable > 0) {
+                userFIL += claimable;
+                updateAccountPanel();
+                alert(`Claimed ${claimable.toFixed(2)} FIL successfully!`);
+            }
+        }
+
+        // Proposal Detail Modal
+        function openProposal(id) {
+            selectedProposal = proposals.find(p => p.id === id);
+            if (!selectedProposal) return;
+            
+            document.getElementById('proposalModalTitle').textContent = selectedProposal.title;
+            
+            const detailContent = `
+                <div class="detail-header">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="status-badge status-${selectedProposal.status}">${selectedProposal.status.toUpperCase()}</div>
+                        <span style="color: #718096;">${getTimeRemaining(selectedProposal)}</span>
+                    </div>
+                    <div class="detail-meta">
+                        <span>Proposer: ${selectedProposal.proposer}</span>
+                        <span>Start: ${formatDate(selectedProposal.startTime)}</span>
+                        <span>End: ${formatDate(selectedProposal.endTime)}</span>
+                        <span>Snapshot: Block #${selectedProposal.snapshotBlock}</span>
+                    </div>
+                </div>
+                <div class="detail-body">
+                    <p>${selectedProposal.description}</p>
+                </div>
+            `;
+            
+            document.getElementById('proposalDetailContent').innerHTML = detailContent;
+            
+            // Voting module
+            const votingModule = document.getElementById('votingModule');
+            if (selectedProposal.status === 'active' && walletConnected && userVeFIL > 0) {
+                votingModule.style.display = 'block';
+                
+                document.querySelectorAll('.vote-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                document.querySelectorAll('input[name="vote"]').forEach(input => {
+                    input.checked = false;
+                    input.addEventListener('change', (e) => {
+                        document.querySelectorAll('.vote-option').forEach(opt => opt.classList.remove('selected'));
+                        e.target.parentElement.classList.add('selected');
+                        document.getElementById('submitVoteBtn').disabled = false;
+                    });
+                });
+                
+                document.getElementById('submitVoteBtn').disabled = true;
+            } else {
+                votingModule.style.display = 'none';
+            }
+            
+            // Results module
+            const resultsHTML = `
+                <h3 style="margin-bottom: 1rem;">Voting Results</h3>
+                <div class="result-item">
+                    <div class="result-header">
+                        <span class="result-label">For</span>
+                        <span class="result-percentage">${(selectedProposal.votesFor / selectedProposal.totalVotes * 100).toFixed(1)}% (${selectedProposal.votesFor.toLocaleString()} veFIL)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${selectedProposal.votesFor / selectedProposal.totalVotes * 100}%; background: #10b981;"></div>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-header">
+                        <span class="result-label">Against</span>
+                        <span class="result-percentage">${(selectedProposal.votesAgainst / selectedProposal.totalVotes * 100).toFixed(1)}% (${selectedProposal.votesAgainst.toLocaleString()} veFIL)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${selectedProposal.votesAgainst / selectedProposal.totalVotes * 100}%; background: #ef4444;"></div>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-header">
+                        <span class="result-label">Abstain</span>
+                        <span class="result-percentage">${(selectedProposal.votesAbstain / selectedProposal.totalVotes * 100).toFixed(1)}% (${selectedProposal.votesAbstain.toLocaleString()} veFIL)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${selectedProposal.votesAbstain / selectedProposal.totalVotes * 100}%; background: #94a3b8;"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">Quorum Status</span>
+                        <span style="color: ${selectedProposal.quorumCurrent >= selectedProposal.quorumRequired ? '#10b981' : '#718096'};">
+                            ${selectedProposal.quorumCurrent >= selectedProposal.quorumRequired ? 'Reached' : 'Not Reached'}
+                        </span>
+                    </div>
+                    <div style="color: #718096;">
+                        ${selectedProposal.quorumCurrent.toFixed(2)}% voted (${selectedProposal.quorumRequired}% required)
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('resultsModule').innerHTML = resultsHTML;
+            
+            // Voter table for passed proposals
+            if (selectedProposal.status === 'passed' && selectedProposal.voters.length > 0) {
+                const voterTableHTML = `
+                    <div class="voter-table">
+                        <h3 style="margin-bottom: 1rem;">Voters</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Address</th>
+                                        <th>Voting Power</th>
+                                        <th>Share %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${selectedProposal.voters.map(v => `
+                                        <tr>
+                                            <td>${v.address.substring(0, 6)}...${v.address.substring(38)}</td>
+                                            <td>${v.power.toLocaleString()} veFIL</td>
+                                            <td>${v.share.toFixed(2)}%</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('resultsModule').innerHTML += voterTableHTML;
+            }
+            
+            document.getElementById('proposalModal').classList.add('active');
+        }
+
+        function closeProposalModal() {
+            document.getElementById('proposalModal').classList.remove('active');
+            selectedProposal = null;
+        }
+
+        function submitVote() {
+            const selectedVote = document.querySelector('input[name="vote"]:checked');
+            if (!selectedVote) return;
+            
+            const vote = selectedVote.value;
+            
+            // Simulate vote submission
+            setTimeout(() => {
+                userVotes[selectedProposal.id] = vote;
+                
+                // Update proposal votes
+                if (vote === 'for') {
+                    selectedProposal.votesFor += userVeFIL;
+                } else if (vote === 'against') {
+                    selectedProposal.votesAgainst += userVeFIL;
+                } else {
+                    selectedProposal.votesAbstain += userVeFIL;
+                }
+                selectedProposal.totalVotes += userVeFIL;
+                selectedProposal.quorumCurrent = (selectedProposal.totalVotes / 1234567) * 100;
+                
+                document.getElementById('voteSuccess').textContent = 'Vote submitted successfully!';
+                document.getElementById('voteSuccess').classList.add('active');
+                
+                renderProposals();
+                
+                setTimeout(() => {
+                    closeProposalModal();
+                    document.getElementById('voteSuccess').classList.remove('active');
+                }, 2000);
+            }, 1500);
+        }
+
+        // Analytics
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const view = btn.dataset.view;
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                document.getElementById('feesView').style.display = view === 'fees' ? 'block' : 'none';
+                document.getElementById('holdersView').style.display = view === 'holders' ? 'block' : 'none';
+            });
+        });
+
+        function renderFeesChart() {
+            const chart = document.getElementById('feesChart');
+            const maxFees = Math.max(...feesData.map(d => d.fees));
+            
+            chart.innerHTML = feesData.map(d => `
+                <div class="bar" style="height: ${(d.fees / maxFees * 100)}%;">
+                    <div class="bar-label">${d.week}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderFeesTable() {
+            const tbody = document.querySelector('#feesTable tbody');
+            const totalFees = feesData.reduce((sum, d) => sum + d.fees, 0);
+            
+            tbody.innerHTML = feesData.map(d => `
+                <tr>
+                    <td>${d.week}</td>
+                    <td>${d.fees.toLocaleString()} FIL</td>
+                    <td>${d.dateRange}</td>
+                </tr>
+            `).join('') + `
+                <tr style="font-weight: 600; background: #f7fafc;">
+                    <td>Total</td>
+                    <td>${totalFees.toLocaleString()} FIL</td>
+                    <td>-</td>
+                </tr>
+            `;
+        }
+
+        function renderHoldersChart() {
+            const chart = document.getElementById('holdersChart');
+            const maxVeFIL = Math.max(...holdersData.map(d => d.veFIL));
+            
+            chart.innerHTML = holdersData.map(d => `
+                <div class="bar" style="height: ${(d.veFIL / maxVeFIL * 100)}%;">
+                    <div class="bar-label">Rank ${d.rank}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderHoldersTable() {
+            const tbody = document.querySelector('#holdersTable tbody');
+            
+            tbody.innerHTML = holdersData.map(d => `
+                <tr>
+                    <td>${d.rank}</td>
+                    <td>${d.address.substring(0, 6)}...${d.address.substring(38)}</td>
+                    <td>${d.veFIL.toLocaleString()} veFIL</td>
+                    <td>${d.share.toFixed(1)}%</td>
+                    <td>${formatDate(d.unlock)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize
+        renderProposals();
+        renderFeesChart();
+        renderFeesTable();
+        renderHoldersChart();
+        renderHoldersTable();
+    </script>
+</body>
+</html>
