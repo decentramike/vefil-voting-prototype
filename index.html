@@ -2490,7 +2490,18 @@
             { rank: 8, address: 'f1zk5mnyqvuxjpxlwxct6uowvmwhbj3kwnbp3squa', veFIL: 43210, share: 3.5, unlock: '2025-09-30' }
         ];
 
-        // State
+        // =============================================================================
+        // STATE MANAGEMENT
+        // =============================================================================
+        // NOTE: This is a prototype with client-side only authentication and state.
+        // In production, all state changes (wallet connection, voting, locking, rewards)
+        // must be validated server-side or on-chain. Current implementation is for
+        // demonstration purposes only and should NOT be used in production without:
+        //   1. Server-side vote validation and deduplication
+        //   2. On-chain transaction verification for FIL locking
+        //   3. Cryptographic wallet signature verification
+        //   4. Rate limiting and anti-spam measures
+        // =============================================================================
         let walletConnected = false;
         let userAddress = '';
         let userFIL = 1500.75;
@@ -2502,6 +2513,30 @@
         let lockDuration = 90;
         let selectedProposal = null;
         let userVotes = {};
+        let hasClaimedThisSession = false;  // Prevents infinite reward claiming
+        let isLockInProgress = false;       // Prevents race condition in lock
+
+        // =============================================================================
+        // SECURITY HELPER FUNCTIONS
+        // =============================================================================
+
+        // HTML escaping to prevent XSS attacks
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Safe division for percentage calculations (prevents NaN/Infinity)
+        function safePercentage(value, total, decimals = 1) {
+            if (total === 0 || !Number.isFinite(total)) return '0.0';
+            const percentage = (value / total) * 100;
+            return Number.isFinite(percentage) ? percentage.toFixed(decimals) : '0.0';
+        }
 
         // Navigation
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -2550,16 +2585,51 @@
         }
 
         function disconnectWallet() {
+            // Reset all user state completely
             walletConnected = false;
             userAddress = '';
+            userFIL = 1500.75;  // Reset to initial value
             userVeFIL = 0;
             userLockedFIL = 0;
-            
+            userVotes = {};  // Clear vote history
+            lockAmount = 0;
+            lockDuration = 90;  // Reset to default
+            hasClaimedThisSession = false;  // Allow claiming again after reconnect
+            isLockInProgress = false;  // Reset lock state
+
+            // Reset UI
             const walletBtn = document.getElementById('walletBtn');
             walletBtn.textContent = 'Connect Wallet';
             walletBtn.className = 'wallet-btn';
-            
+
+            // Reset lock modal inputs if visible
+            const lockAmountInput = document.getElementById('lockAmount');
+            if (lockAmountInput) {
+                lockAmountInput.value = '';
+            }
+
+            // Reset duration slider to default
+            const durationSlider = document.getElementById('durationSlider');
+            if (durationSlider) {
+                durationSlider.value = 90;
+            }
+            const selectedDuration = document.getElementById('selectedDuration');
+            if (selectedDuration) {
+                selectedDuration.textContent = '90';
+            }
+
+            // Reset duration presets
+            document.querySelectorAll('.duration-preset').forEach(p => p.classList.remove('active'));
+            const defaultPreset = document.querySelector('.duration-preset[data-days="90"]');
+            if (defaultPreset) {
+                defaultPreset.classList.add('active');
+            }
+
             closeAccountPanel();
+            closeLockModal();
+
+            // Re-render proposals to update voting UI
+            renderProposals();
         }
 
         function toggleAccountPanel() {
@@ -2600,7 +2670,8 @@
             
             const claimable = userVeFIL * 0.05;
             document.getElementById('accountClaimable').textContent = claimable.toFixed(2) + ' FIL';
-            document.getElementById('claimBtn').disabled = claimable === 0;
+            // Disable claim button if no rewards OR already claimed this session
+            document.getElementById('claimBtn').disabled = claimable === 0 || hasClaimedThisSession;
         }
 
         // Proposals
@@ -2632,37 +2703,37 @@
             const container = document.getElementById('proposalsList');
             const t = translations[currentLang];
             container.innerHTML = filtered.map(p => `
-                <div class="proposal-card" onclick="openProposal(${p.id})">
+                <div class="proposal-card" onclick="openProposal(${parseInt(p.id, 10)})">
                     <div class="proposal-header">
                         <div>
-                            <div class="status-badge status-${p.status}">${getStatusLabel(p.status)}</div>
+                            <div class="status-badge status-${escapeHtml(p.status)}">${escapeHtml(getStatusLabel(p.status))}</div>
                         </div>
                         <div style="text-align: right; color: #718096; font-size: 0.9rem;">
-                            ${getTimeRemaining(p)}
+                            ${escapeHtml(getTimeRemaining(p))}
                         </div>
                     </div>
-                    <h3 class="proposal-title">${p.title}</h3>
+                    <h3 class="proposal-title">${escapeHtml(p.title)}</h3>
                     <div class="proposal-meta">
-                        ${t.proposedBy} ${p.proposer.substring(0, 6)}...${p.proposer.substring(38)} •
-                        ${t.created} ${formatDate(p.created)}
+                        ${escapeHtml(t.proposedBy)} ${escapeHtml(p.proposer.substring(0, 6))}...${escapeHtml(p.proposer.substring(38))} •
+                        ${escapeHtml(t.created)} ${escapeHtml(formatDate(p.created))}
                     </div>
-                    <p class="proposal-description">${p.description}</p>
+                    <p class="proposal-description">${escapeHtml(p.description)}</p>
                     <div class="proposal-stats">
                         <div class="proposal-stat">
-                            <div class="proposal-stat-label">${t.quorumProgress}</div>
+                            <div class="proposal-stat-label">${escapeHtml(t.quorumProgress)}</div>
                             <div class="proposal-stat-value">${p.quorumCurrent.toFixed(2)}% of ${p.quorumRequired}%</div>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${(p.quorumCurrent / p.quorumRequired * 100).toFixed(2)}%"></div>
+                                <div class="progress-fill" style="width: ${Math.min(safePercentage(p.quorumCurrent, p.quorumRequired, 2), 100)}%"></div>
                             </div>
                         </div>
                         <div class="proposal-stat">
-                            <div class="proposal-stat-label">${t.totalVotes}</div>
+                            <div class="proposal-stat-label">${escapeHtml(t.totalVotes)}</div>
                             <div class="proposal-stat-value">${p.totalVotes.toLocaleString()} veFIL</div>
                         </div>
                         <div class="proposal-stat">
-                            <div class="proposal-stat-label">${t.currentSplit}</div>
+                            <div class="proposal-stat-label">${escapeHtml(t.currentSplit)}</div>
                             <div class="proposal-stat-value">
-                                ${p.totalVotes === 0 ? t.upcoming : `${(p.votesFor / p.totalVotes * 100).toFixed(1)}% For / ${(p.votesAgainst / p.totalVotes * 100).toFixed(1)}% Against`}
+                                ${p.totalVotes === 0 ? escapeHtml(t.upcoming) : `${safePercentage(p.votesFor, p.totalVotes)}% For / ${safePercentage(p.votesAgainst, p.totalVotes)}% Against`}
                             </div>
                         </div>
                     </div>
@@ -2745,7 +2816,27 @@
         document.getElementById('lockFILBannerBtn').addEventListener('click', openLockModal);
 
         document.getElementById('lockAmount').addEventListener('input', (e) => {
-            lockAmount = parseFloat(e.target.value) || 0;
+            const rawValue = e.target.value;
+
+            // Parse and validate
+            let parsed = parseFloat(rawValue);
+
+            // Handle invalid values
+            if (isNaN(parsed) || !Number.isFinite(parsed)) {
+                lockAmount = 0;
+            } else if (parsed < 0) {
+                lockAmount = 0;
+                e.target.value = '0';
+            } else {
+                // Limit to 8 decimal places (standard for crypto)
+                lockAmount = Math.floor(parsed * 100000000) / 100000000;
+
+                // Cap at maximum balance
+                if (lockAmount > userFIL) {
+                    lockAmount = userFIL;
+                }
+            }
+
             updateLockPreview();
         });
 
@@ -2789,35 +2880,64 @@
         }
 
         function submitLock() {
-            if (lockAmount <= 0 || lockAmount > userFIL) {
+            // Prevent race condition - check if lock is already in progress
+            if (isLockInProgress) {
+                return;
+            }
+
+            if (lockAmount <= 0 || lockAmount > userFIL || !Number.isFinite(lockAmount)) {
                 document.getElementById('lockError').textContent = 'Invalid lock amount';
                 document.getElementById('lockError').classList.add('active');
                 return;
             }
-            
+
+            // Disable button and set lock in progress
+            const lockBtn = document.getElementById('lockContinueBtn');
+            isLockInProgress = true;
+            lockBtn.disabled = true;
+            const originalText = lockBtn.textContent;
+            lockBtn.textContent = 'Processing...';
+
+            // Clear any previous error
+            document.getElementById('lockError').classList.remove('active');
+
             // Simulate transaction
             setTimeout(() => {
-                userFIL -= lockAmount;
-                userLockedFIL += lockAmount;
-                const multiplier = lockDuration / 730;
-                userVeFIL += lockAmount * multiplier;
-                
-                updateAccountPanel();
-                
-                document.getElementById('lockSuccess').textContent = 'FIL locked successfully! Your veFIL has been minted.';
-                document.getElementById('lockSuccess').classList.add('active');
-                
-                setTimeout(() => {
-                    closeLockModal();
-                    document.getElementById('lockSuccess').classList.remove('active');
-                }, 2000);
+                try {
+                    userFIL -= lockAmount;
+                    userLockedFIL += lockAmount;
+                    const multiplier = lockDuration / 730;
+                    userVeFIL += lockAmount * multiplier;
+
+                    updateAccountPanel();
+
+                    document.getElementById('lockSuccess').textContent = 'FIL locked successfully! Your veFIL has been minted.';
+                    document.getElementById('lockSuccess').classList.add('active');
+
+                    setTimeout(() => {
+                        closeLockModal();
+                        document.getElementById('lockSuccess').classList.remove('active');
+                    }, 2000);
+                } finally {
+                    // Re-enable button
+                    isLockInProgress = false;
+                    lockBtn.disabled = false;
+                    lockBtn.textContent = originalText;
+                }
             }, 1500);
         }
 
         function claimRewards() {
+            // Prevent infinite claiming - only allow once per session
+            if (hasClaimedThisSession) {
+                alert('You have already claimed rewards this session.');
+                return;
+            }
+
             const claimable = userVeFIL * 0.05;
             if (claimable > 0) {
                 userFIL += claimable;
+                hasClaimedThisSession = true;
                 updateAccountPanel();
                 alert(`Claimed ${claimable.toFixed(2)} FIL successfully!`);
             }
@@ -2827,80 +2947,110 @@
         function openProposal(id) {
             selectedProposal = proposals.find(p => p.id === id);
             if (!selectedProposal) return;
-            
+
             document.getElementById('proposalModalTitle').textContent = selectedProposal.title;
-            
+
             const detailContent = `
                 <div class="detail-header">
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                        <div class="status-badge status-${selectedProposal.status}">${selectedProposal.status.toUpperCase()}</div>
-                        <span style="color: #718096;">${getTimeRemaining(selectedProposal)}</span>
+                        <div class="status-badge status-${escapeHtml(selectedProposal.status)}">${escapeHtml(selectedProposal.status.toUpperCase())}</div>
+                        <span style="color: #718096;">${escapeHtml(getTimeRemaining(selectedProposal))}</span>
                     </div>
                     <div class="detail-meta">
-                        <span>Proposer: ${selectedProposal.proposer}</span>
-                        <span>Start: ${formatDate(selectedProposal.startTime)}</span>
-                        <span>End: ${formatDate(selectedProposal.endTime)}</span>
-                        <span>Snapshot: Block #${selectedProposal.snapshotBlock}</span>
+                        <span>Proposer: ${escapeHtml(selectedProposal.proposer)}</span>
+                        <span>Start: ${escapeHtml(formatDate(selectedProposal.startTime))}</span>
+                        <span>End: ${escapeHtml(formatDate(selectedProposal.endTime))}</span>
+                        <span>Snapshot: Block #${escapeHtml(selectedProposal.snapshotBlock)}</span>
                     </div>
                 </div>
                 <div class="detail-body">
-                    <p>${selectedProposal.description}</p>
+                    <p>${escapeHtml(selectedProposal.description)}</p>
                 </div>
             `;
-            
+
             document.getElementById('proposalDetailContent').innerHTML = detailContent;
-            
-            // Voting module
+
+            // Voting module - check for existing vote first (prevent double-voting)
             const votingModule = document.getElementById('votingModule');
+            const existingVote = userVotes[selectedProposal.id];
+
             if (selectedProposal.status === 'active' && walletConnected && userVeFIL > 0) {
-                votingModule.style.display = 'block';
-                
-                document.querySelectorAll('.vote-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                
-                document.querySelectorAll('input[name="vote"]').forEach(input => {
-                    input.checked = false;
-                    input.addEventListener('change', (e) => {
-                        document.querySelectorAll('.vote-option').forEach(opt => opt.classList.remove('selected'));
-                        e.target.parentElement.classList.add('selected');
-                        document.getElementById('submitVoteBtn').disabled = false;
+                if (existingVote) {
+                    // User already voted - show their vote instead of voting options
+                    votingModule.style.display = 'block';
+                    votingModule.innerHTML = `
+                        <h3 style="margin-bottom: 1rem;">Your Vote</h3>
+                        <div style="padding: 1rem; background: #f0f7ff; border-radius: 8px; text-align: center;">
+                            <p style="color: #0066ff; font-weight: 600; margin: 0;">
+                                You voted: ${escapeHtml(existingVote.charAt(0).toUpperCase() + existingVote.slice(1))}
+                            </p>
+                            <p style="color: #718096; font-size: 0.9rem; margin: 0.5rem 0 0 0;">
+                                Voting power: ${userVeFIL.toLocaleString()} veFIL
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    // Show voting options
+                    votingModule.style.display = 'block';
+                    votingModule.innerHTML = `
+                        <h3 style="margin-bottom: 1rem;">Cast Your Vote</h3>
+                        <div class="voting-options">
+                            <label class="vote-option">
+                                <input type="radio" name="vote" value="for">
+                                <div>✓ For</div>
+                            </label>
+                            <label class="vote-option">
+                                <input type="radio" name="vote" value="against">
+                                <div>✗ Against</div>
+                            </label>
+                            <label class="vote-option">
+                                <input type="radio" name="vote" value="abstain">
+                                <div>− Abstain</div>
+                            </label>
+                        </div>
+                        <button class="btn-primary" id="submitVoteBtn" disabled onclick="submitVote()" style="width: 100%;">Submit Vote</button>
+                    `;
+
+                    document.querySelectorAll('input[name="vote"]').forEach(input => {
+                        input.addEventListener('change', (e) => {
+                            document.querySelectorAll('.vote-option').forEach(opt => opt.classList.remove('selected'));
+                            e.target.parentElement.classList.add('selected');
+                            document.getElementById('submitVoteBtn').disabled = false;
+                        });
                     });
-                });
-                
-                document.getElementById('submitVoteBtn').disabled = true;
+                }
             } else {
                 votingModule.style.display = 'none';
             }
-            
-            // Results module
+
+            // Results module - using safePercentage to prevent division by zero
             const resultsHTML = `
                 <h3 style="margin-bottom: 1rem;">Voting Results</h3>
                 <div class="result-item">
                     <div class="result-header">
                         <span class="result-label">For</span>
-                        <span class="result-percentage">${(selectedProposal.votesFor / selectedProposal.totalVotes * 100).toFixed(1)}% (${selectedProposal.votesFor.toLocaleString()} veFIL)</span>
+                        <span class="result-percentage">${safePercentage(selectedProposal.votesFor, selectedProposal.totalVotes)}% (${selectedProposal.votesFor.toLocaleString()} veFIL)</span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${selectedProposal.votesFor / selectedProposal.totalVotes * 100}%; background: #10b981;"></div>
+                        <div class="progress-fill" style="width: ${safePercentage(selectedProposal.votesFor, selectedProposal.totalVotes)}%; background: #10b981;"></div>
                     </div>
                 </div>
                 <div class="result-item">
                     <div class="result-header">
                         <span class="result-label">Against</span>
-                        <span class="result-percentage">${(selectedProposal.votesAgainst / selectedProposal.totalVotes * 100).toFixed(1)}% (${selectedProposal.votesAgainst.toLocaleString()} veFIL)</span>
+                        <span class="result-percentage">${safePercentage(selectedProposal.votesAgainst, selectedProposal.totalVotes)}% (${selectedProposal.votesAgainst.toLocaleString()} veFIL)</span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${selectedProposal.votesAgainst / selectedProposal.totalVotes * 100}%; background: #ef4444;"></div>
+                        <div class="progress-fill" style="width: ${safePercentage(selectedProposal.votesAgainst, selectedProposal.totalVotes)}%; background: #ef4444;"></div>
                     </div>
                 </div>
                 <div class="result-item">
                     <div class="result-header">
                         <span class="result-label">Abstain</span>
-                        <span class="result-percentage">${(selectedProposal.votesAbstain / selectedProposal.totalVotes * 100).toFixed(1)}% (${selectedProposal.votesAbstain.toLocaleString()} veFIL)</span>
+                        <span class="result-percentage">${safePercentage(selectedProposal.votesAbstain, selectedProposal.totalVotes)}% (${selectedProposal.votesAbstain.toLocaleString()} veFIL)</span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${selectedProposal.votesAbstain / selectedProposal.totalVotes * 100}%; background: #94a3b8;"></div>
+                        <div class="progress-fill" style="width: ${safePercentage(selectedProposal.votesAbstain, selectedProposal.totalVotes)}%; background: #94a3b8;"></div>
                     </div>
                 </div>
                 <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
@@ -2915,9 +3065,9 @@
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('resultsModule').innerHTML = resultsHTML;
-            
+
             // Voter table for passed proposals
             if (selectedProposal.status === 'passed' && selectedProposal.voters.length > 0) {
                 const voterTableHTML = `
@@ -2935,9 +3085,9 @@
                                 <tbody>
                                     ${selectedProposal.voters.map(v => `
                                         <tr>
-                                            <td>${v.address.substring(0, 6)}...${v.address.substring(38)}</td>
-                                            <td>${v.power.toLocaleString()} veFIL</td>
-                                            <td>${v.share.toFixed(2)}%</td>
+                                            <td>${escapeHtml(v.address.substring(0, 6))}...${escapeHtml(v.address.substring(38))}</td>
+                                            <td>${Number(v.power).toLocaleString()} veFIL</td>
+                                            <td>${Number(v.share).toFixed(2)}%</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -2947,7 +3097,7 @@
                 `;
                 document.getElementById('resultsModule').innerHTML += voterTableHTML;
             }
-            
+
             document.getElementById('proposalModal').classList.add('active');
         }
 
@@ -2959,13 +3109,24 @@
         function submitVote() {
             const selectedVote = document.querySelector('input[name="vote"]:checked');
             if (!selectedVote) return;
-            
+
+            // Check if user has already voted on this proposal (prevent double-voting)
+            if (userVotes[selectedProposal.id]) {
+                alert('You have already voted on this proposal.');
+                return;
+            }
+
             const vote = selectedVote.value;
-            
+            const submitBtn = document.getElementById('submitVoteBtn');
+
+            // Disable button during submission to prevent double-click
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
             // Simulate vote submission
             setTimeout(() => {
                 userVotes[selectedProposal.id] = vote;
-                
+
                 // Update proposal votes
                 if (vote === 'for') {
                     selectedProposal.votesFor += userVeFIL;
@@ -2976,15 +3137,16 @@
                 }
                 selectedProposal.totalVotes += userVeFIL;
                 selectedProposal.quorumCurrent = (selectedProposal.totalVotes / 1234567) * 100;
-                
+
                 document.getElementById('voteSuccess').textContent = 'Vote submitted successfully!';
                 document.getElementById('voteSuccess').classList.add('active');
-                
+
                 renderProposals();
-                
+
                 setTimeout(() => {
                     closeProposalModal();
                     document.getElementById('voteSuccess').classList.remove('active');
+                    submitBtn.textContent = 'Submit Vote';
                 }, 2000);
             }, 1500);
         }
@@ -3175,24 +3337,24 @@
             container.innerHTML = sortedSuggestions.map(s => `
                 <div class="suggestion-card">
                     <div class="suggestion-votes">
-                        <button class="vote-btn ${s.userVote === 'up' ? 'voted-up' : ''}" onclick="voteSuggestion(${s.id}, 'up')">
+                        <button class="vote-btn ${s.userVote === 'up' ? 'voted-up' : ''}" onclick="voteSuggestion(${parseInt(s.id, 10)}, 'up')">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                             </svg>
                         </button>
-                        <span class="vote-count">${s.votes}</span>
-                        <button class="vote-btn ${s.userVote === 'down' ? 'voted-down' : ''}" onclick="voteSuggestion(${s.id}, 'down')">
+                        <span class="vote-count">${parseInt(s.votes, 10)}</span>
+                        <button class="vote-btn ${s.userVote === 'down' ? 'voted-down' : ''}" onclick="voteSuggestion(${parseInt(s.id, 10)}, 'down')">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
                     </div>
                     <div class="suggestion-content">
-                        <div class="suggestion-title">${s.title}</div>
-                        <div class="suggestion-description">${s.description}</div>
+                        <div class="suggestion-title">${escapeHtml(s.title)}</div>
+                        <div class="suggestion-description">${escapeHtml(s.description)}</div>
                         <div class="suggestion-meta">
-                            <span class="suggestion-tag ${s.type}">${getTypeLabel(s.type)}</span>
-                            ${formatDate(s.date)}
+                            <span class="suggestion-tag ${escapeHtml(s.type)}">${escapeHtml(getTypeLabel(s.type))}</span>
+                            ${escapeHtml(formatDate(s.date))}
                         </div>
                     </div>
                 </div>
