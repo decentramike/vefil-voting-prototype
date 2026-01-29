@@ -1126,15 +1126,461 @@
                 bottom: 1rem;
             }
         }
+
+        /* Demo Badge */
+        .demo-badge {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931a 100%);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 0.75rem;
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Tooltip Styles */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted #0066ff;
+            display: inline;
+        }
+
+        .tooltip-trigger::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a202c;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            line-height: 1.5;
+            white-space: normal;
+            width: max-content;
+            max-width: 280px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            margin-bottom: 8px;
+        }
+
+        .tooltip-trigger::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1a202c;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 1001;
+            margin-bottom: -4px;
+        }
+
+        .tooltip-trigger:hover::after,
+        .tooltip-trigger:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Wallet Disclaimer Modal */
+        .wallet-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wallet-modal.active {
+            display: flex;
+        }
+
+        .wallet-modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .wallet-modal-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931a 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .wallet-modal-header svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.75rem;
+        }
+
+        .wallet-modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .wallet-modal-body {
+            padding: 1.5rem;
+        }
+
+        .wallet-disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .wallet-disclaimer-title {
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wallet-disclaimer p {
+            color: #856404;
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .wallet-features {
+            margin-bottom: 1.5rem;
+        }
+
+        .wallet-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #4a5568;
+        }
+
+        .wallet-feature svg {
+            width: 20px;
+            height: 20px;
+            color: #10b981;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .wallet-modal-footer {
+            display: flex;
+            gap: 1rem;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .wallet-modal-footer button {
+            flex: 1;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .wallet-cancel-btn {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .wallet-cancel-btn:hover {
+            background: #edf2f7;
+        }
+
+        .wallet-continue-btn {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            border: none;
+            color: white;
+        }
+
+        .wallet-continue-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.4);
+        }
+
+        /* Info Page Styles */
+        .info-page {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section h2 {
+            color: #1a202c;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-section h2 svg {
+            width: 28px;
+            height: 28px;
+            color: #0066ff;
+        }
+
+        .info-section p {
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .info-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-highlight {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+            border-left: 4px solid #0066ff;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+
+        .info-highlight p {
+            margin: 0;
+            font-style: italic;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #4a5568;
+        }
+
+        .info-list li svg {
+            width: 20px;
+            height: 20px;
+            color: #10b981;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Community Feedback Page Styles */
+        .feedback-page-header {
+            margin-bottom: 2rem;
+        }
+
+        .feedback-page-header h1 {
+            font-size: 2rem;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-page-header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .suggestion-form {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-form h3 {
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+
+        .suggestion-input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        .suggestion-input:focus {
+            outline: none;
+            border-color: #0066ff;
+        }
+
+        .suggestion-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .suggestion-submit {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.4);
+        }
+
+        .suggestions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .suggestion-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .suggestion-votes {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+
+        .vote-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: #a0aec0;
+            transition: all 0.2s;
+        }
+
+        .vote-btn:hover {
+            color: #0066ff;
+        }
+
+        .vote-btn.voted-up {
+            color: #10b981;
+        }
+
+        .vote-btn.voted-down {
+            color: #ef4444;
+        }
+
+        .vote-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .vote-count {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .suggestion-content {
+            flex: 1;
+        }
+
+        .suggestion-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-description {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .suggestion-meta {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .suggestion-tag {
+            display: inline-block;
+            background: #e6f2ff;
+            color: #0066ff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .suggestion-tag.feature {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .suggestion-tag.improvement {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .suggestion-tag.bug {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
     <nav>
         <div class="nav-container">
-            <div class="nav-logo">veFIL Governance</div>
+            <div class="nav-logo">veFIL Governance<span class="demo-badge" data-i18n="demoBadge">Demo</span></div>
             <ul class="nav-links">
                 <li><a href="#" class="nav-link active" data-page="proposals" data-i18n="navProposals">Proposals</a></li>
                 <li><a href="#" class="nav-link" data-page="analytics" data-i18n="navAnalytics">Analytics</a></li>
+                <li><a href="#" class="nav-link" data-page="info" data-i18n="navInfo">Info</a></li>
+                <li><a href="#" class="nav-link" data-page="community-feedback" data-i18n="navCommunityFeedback">Feedback</a></li>
             </ul>
             <div class="nav-right">
                 <div class="lang-switcher">
@@ -1153,7 +1599,7 @@
             <div class="container">
                 <div class="hero-section">
                     <div class="hero-title-row">
-                        <h1 class="hero-title" data-i18n="heroTitle">veFIL Voting Prototype</h1>
+                        <h1 class="hero-title"><span class="tooltip-trigger" data-tooltip="Vote-escrowed FIL: A governance token earned by locking FIL. Longer lock periods = more voting power." data-i18n-tooltip="tooltipVeFIL">veFIL</span> <span data-i18n="heroTitleVoting">Voting</span> <span class="tooltip-trigger" data-tooltip="This is a demonstration environment. No real tokens, wallets, or funds are used." data-i18n-tooltip="tooltipPrototype">Prototype</span></h1>
                         <button class="hero-cta" id="lockFILBannerBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -1162,8 +1608,8 @@
                         </button>
                     </div>
                     <div class="hero-description">
-                        <span class="label" data-i18n="testEnv">Test Environment</span>
-                        <p data-i18n="heroDesc">Try out minting veFIL and voting on proposals that shape the future of Filecoin. This is a prototype environment and is not linked to real wallets or stake.</p>
+                        <span class="label" data-i18n="testEnv">Prototype - No Real Funds</span>
+                        <p data-i18n="heroDesc">Try out minting <span class="tooltip-trigger" data-tooltip="Vote-escrowed FIL: Governance tokens received when you lock FIL. The longer you lock, the more veFIL you receive." data-i18n-tooltip="tooltipVeFIL">veFIL</span> and voting on proposals that shape the future of Filecoin. <strong>This is a demonstration environment only.</strong> No real wallets are connected and no actual funds are used. All data shown is simulated for testing purposes.</p>
                     </div>
                 </div>
 
@@ -1285,7 +1731,178 @@
                 </div>
             </div>
         </div>
+
+        <!-- Info Page -->
+        <div id="info" class="page">
+            <div class="container info-page">
+                <div class="info-section">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span data-i18n="infoAboutTitle">About This Prototype</span>
+                    </h2>
+                    <div class="wallet-disclaimer" style="margin-bottom: 1rem;">
+                        <div class="wallet-disclaimer-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span data-i18n="infoDisclaimerTitle">Demonstration Only</span>
+                        </div>
+                        <p data-i18n="infoDisclaimerText">This is a prototype environment for exploring veFIL governance concepts. No real wallets, tokens, or funds are used. All data is simulated for demonstration purposes.</p>
+                    </div>
+                    <p data-i18n="infoAboutDesc">This prototype demonstrates how vote-escrowed FIL (veFIL) governance could work on the Filecoin network. It allows you to explore the user experience of locking FIL to receive voting power and participating in governance proposals.</p>
+                </div>
+
+                <div class="info-section">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span data-i18n="infoVeModelTitle">The Vote-Escrowed Model</span>
+                    </h2>
+                    <div class="info-highlight">
+                        <p data-i18n="infoVeModelHighlight">The vote-escrowed model is a well-established mechanism in DeFi and blockchain governance that rewards long-term commitment and aligns token holders' interests with the protocol's long-term success.</p>
+                    </div>
+                    <p data-i18n="infoVeModelDesc1">By giving more voting power to those with a longer-term stake, the network can ensure that decisions are made by those who are most invested in the future of the network.</p>
+                    <p data-i18n="infoVeModelDesc2">This model provides a transparent framework for governing public goods funding, moving further towards a more decentralized and community-driven approach.</p>
+                </div>
+
+                <div class="info-section">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <span data-i18n="infoGlossaryTitle">Key Terms</span>
+                    </h2>
+                    <ul class="info-list">
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <div><strong>veFIL (Vote-Escrowed FIL):</strong> <span data-i18n="glossaryVeFIL">A governance token received when you lock FIL. The amount of veFIL you receive depends on both the amount locked and the lock duration. Longer locks = more veFIL = more voting power.</span></div>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <div><strong>Quorum:</strong> <span data-i18n="glossaryQuorum">The minimum percentage of total veFIL that must participate in a vote for it to be valid. This ensures decisions have sufficient community support.</span></div>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <div><strong>Lock Duration:</strong> <span data-i18n="glossaryLockDuration">The time period for which your FIL is locked. Ranges from 7 days to 2 years (730 days). Longer durations provide more veFIL.</span></div>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <div><strong>Snapshot Block:</strong> <span data-i18n="glossarySnapshot">The block height at which veFIL balances are recorded for voting eligibility. Only veFIL held at this block can vote on the proposal.</span></div>
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <div><strong>FIP (Filecoin Improvement Proposal):</strong> <span data-i18n="glossaryFIP">A formal document proposing changes or improvements to the Filecoin network. FIPs go through community review before implementation.</span></div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        <span data-i18n="infoFormulaTitle">veFIL Formula</span>
+                    </h2>
+                    <p data-i18n="infoFormulaDesc">The amount of veFIL you receive is calculated based on your lock amount and duration:</p>
+                    <div class="info-highlight">
+                        <p><strong>veFIL = FIL Amount × (Lock Days / 730) × Multiplier</strong></p>
+                    </div>
+                    <p data-i18n="infoFormulaExample">For example, locking 100 FIL for 365 days (1 year) would give you: 100 × (365/730) × 1 = 50 veFIL</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Feedback Page -->
+        <div id="community-feedback" class="page">
+            <div class="container">
+                <div class="feedback-page-header">
+                    <h1 data-i18n="feedbackPageTitle">Community Feedback</h1>
+                    <p data-i18n="feedbackPageDesc">Share your ideas, vote on suggestions from others, and help shape the future of veFIL governance.</p>
+                </div>
+
+                <div class="suggestion-form">
+                    <h3 data-i18n="suggestFeature">Suggest a Feature or Improvement</h3>
+                    <input type="text" class="suggestion-input" id="suggestionTitle" placeholder="Feature title..." data-i18n-placeholder="suggestionTitlePlaceholder">
+                    <textarea class="suggestion-input suggestion-textarea" id="suggestionDesc" placeholder="Describe your suggestion..." data-i18n-placeholder="suggestionDescPlaceholder"></textarea>
+                    <select class="suggestion-input" id="suggestionType" style="margin-bottom: 1rem;">
+                        <option value="feature" data-i18n="typeFeature">New Feature</option>
+                        <option value="improvement" data-i18n="typeImprovement">Improvement</option>
+                        <option value="bug" data-i18n="typeBugFix">Bug Fix</option>
+                    </select>
+                    <button class="suggestion-submit" onclick="addSuggestion()" data-i18n="submitSuggestion">Submit Suggestion</button>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;" data-i18n="communitySuggestions">Community Suggestions</h3>
+                <div class="suggestions-list" id="suggestionsList"></div>
+            </div>
+        </div>
     </main>
+
+    <!-- Wallet Disclaimer Modal -->
+    <div class="wallet-modal" id="walletDisclaimerModal">
+        <div class="wallet-modal-content">
+            <div class="wallet-modal-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h2 data-i18n="walletModalTitle">Demo Mode Only</h2>
+            </div>
+            <div class="wallet-modal-body">
+                <div class="wallet-disclaimer">
+                    <div class="wallet-disclaimer-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span data-i18n="walletDisclaimerTitle">This is NOT a Real Wallet</span>
+                    </div>
+                    <p data-i18n="walletDisclaimerText">You are connecting to a simulated demo wallet. No real cryptocurrency, tokens, or funds are involved. This is purely for demonstration purposes.</p>
+                </div>
+                <div class="wallet-features">
+                    <div class="wallet-feature">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span data-i18n="walletFeature1">No real FIL or crypto is used</span>
+                    </div>
+                    <div class="wallet-feature">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span data-i18n="walletFeature2">All balances are simulated demo data</span>
+                    </div>
+                    <div class="wallet-feature">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span data-i18n="walletFeature3">Safe to explore without any risk</span>
+                    </div>
+                    <div class="wallet-feature">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span data-i18n="walletFeature4">Votes and transactions are not recorded on-chain</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wallet-modal-footer">
+                <button class="wallet-cancel-btn" onclick="closeWalletDisclaimer()" data-i18n="walletCancel">Cancel</button>
+                <button class="wallet-continue-btn" onclick="proceedWithDemoWallet()" data-i18n="walletContinue">I Understand, Continue</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Lock FIL Modal -->
     <div class="modal" id="lockModal">
@@ -1545,7 +2162,60 @@
                 upcoming: 'Upcoming',
                 daysRemaining: 'days remaining',
                 startsIn: 'Starts in',
-                ended: 'Ended'
+                ended: 'Ended',
+
+                // Navigation & Header
+                navInfo: 'Info',
+                navCommunityFeedback: 'Feedback',
+                demoBadge: 'Demo',
+                heroTitleVoting: 'Voting',
+
+                // Tooltips
+                tooltipVeFIL: 'Vote-escrowed FIL: A governance token earned by locking FIL. Longer lock periods = more voting power.',
+                tooltipPrototype: 'This is a demonstration environment. No real tokens, wallets, or funds are used.',
+                tooltipQuorum: 'The minimum participation required for a valid vote.',
+
+                // Wallet Modal
+                walletModalTitle: 'Demo Mode Only',
+                walletDisclaimerTitle: 'This is NOT a Real Wallet',
+                walletDisclaimerText: 'You are connecting to a simulated demo wallet. No real cryptocurrency, tokens, or funds are involved. This is purely for demonstration purposes.',
+                walletFeature1: 'No real FIL or crypto is used',
+                walletFeature2: 'All balances are simulated demo data',
+                walletFeature3: 'Safe to explore without any risk',
+                walletFeature4: 'Votes and transactions are not recorded on-chain',
+                walletCancel: 'Cancel',
+                walletContinue: 'I Understand, Continue',
+
+                // Info Page
+                infoAboutTitle: 'About This Prototype',
+                infoDisclaimerTitle: 'Demonstration Only',
+                infoDisclaimerText: 'This is a prototype environment for exploring veFIL governance concepts. No real wallets, tokens, or funds are used. All data is simulated for demonstration purposes.',
+                infoAboutDesc: 'This prototype demonstrates how vote-escrowed FIL (veFIL) governance could work on the Filecoin network. It allows you to explore the user experience of locking FIL to receive voting power and participating in governance proposals.',
+                infoVeModelTitle: 'The Vote-Escrowed Model',
+                infoVeModelHighlight: 'The vote-escrowed model is a well-established mechanism in DeFi and blockchain governance that rewards long-term commitment and aligns token holders\' interests with the protocol\'s long-term success.',
+                infoVeModelDesc1: 'By giving more voting power to those with a longer-term stake, the network can ensure that decisions are made by those who are most invested in the future of the network.',
+                infoVeModelDesc2: 'This model provides a transparent framework for governing public goods funding, moving further towards a more decentralized and community-driven approach.',
+                infoGlossaryTitle: 'Key Terms',
+                glossaryVeFIL: 'A governance token received when you lock FIL. The amount of veFIL you receive depends on both the amount locked and the lock duration. Longer locks = more veFIL = more voting power.',
+                glossaryQuorum: 'The minimum percentage of total veFIL that must participate in a vote for it to be valid. This ensures decisions have sufficient community support.',
+                glossaryLockDuration: 'The time period for which your FIL is locked. Ranges from 7 days to 2 years (730 days). Longer durations provide more veFIL.',
+                glossarySnapshot: 'The block height at which veFIL balances are recorded for voting eligibility. Only veFIL held at this block can vote on the proposal.',
+                glossaryFIP: 'A formal document proposing changes or improvements to the Filecoin network. FIPs go through community review before implementation.',
+                infoFormulaTitle: 'veFIL Formula',
+                infoFormulaDesc: 'The amount of veFIL you receive is calculated based on your lock amount and duration:',
+                infoFormulaExample: 'For example, locking 100 FIL for 365 days (1 year) would give you: 100 × (365/730) × 1 = 50 veFIL',
+
+                // Community Feedback Page
+                feedbackPageTitle: 'Community Feedback',
+                feedbackPageDesc: 'Share your ideas, vote on suggestions from others, and help shape the future of veFIL governance.',
+                suggestFeature: 'Suggest a Feature or Improvement',
+                suggestionTitlePlaceholder: 'Feature title...',
+                suggestionDescPlaceholder: 'Describe your suggestion...',
+                typeFeature: 'New Feature',
+                typeImprovement: 'Improvement',
+                typeBugFix: 'Bug Fix',
+                submitSuggestion: 'Submit Suggestion',
+                communitySuggestions: 'Community Suggestions'
             },
             zh: {
                 // Navigation
@@ -1613,7 +2283,60 @@
                 upcoming: '即将开始',
                 daysRemaining: '天剩余',
                 startsIn: '开始于',
-                ended: '已结束'
+                ended: '已结束',
+
+                // Navigation & Header
+                navInfo: '信息',
+                navCommunityFeedback: '反馈',
+                demoBadge: '演示',
+                heroTitleVoting: '投票',
+
+                // Tooltips
+                tooltipVeFIL: '投票托管FIL：通过锁定FIL获得的治理代币。锁定时间越长 = 投票权越大。',
+                tooltipPrototype: '这是一个演示环境。不使用真实的代币、钱包或资金。',
+                tooltipQuorum: '有效投票所需的最低参与率。',
+
+                // Wallet Modal
+                walletModalTitle: '仅限演示模式',
+                walletDisclaimerTitle: '这不是真实钱包',
+                walletDisclaimerText: '您正在连接模拟演示钱包。不涉及任何真实的加密货币、代币或资金。这纯粹是为了演示目的。',
+                walletFeature1: '不使用真实的FIL或加密货币',
+                walletFeature2: '所有余额都是模拟演示数据',
+                walletFeature3: '可以安全探索，没有任何风险',
+                walletFeature4: '投票和交易不会记录在链上',
+                walletCancel: '取消',
+                walletContinue: '我已了解，继续',
+
+                // Info Page
+                infoAboutTitle: '关于此原型',
+                infoDisclaimerTitle: '仅供演示',
+                infoDisclaimerText: '这是一个用于探索veFIL治理概念的原型环境。不使用真实的钱包、代币或资金。所有数据都是为演示目的而模拟的。',
+                infoAboutDesc: '此原型展示了投票托管FIL（veFIL）治理如何在Filecoin网络上运作。它允许您探索锁定FIL以获得投票权并参与治理提案的用户体验。',
+                infoVeModelTitle: '投票托管模型',
+                infoVeModelHighlight: '投票托管模型是DeFi和区块链治理中一种成熟的机制，它奖励长期承诺，并使代币持有者的利益与协议的长期成功保持一致。',
+                infoVeModelDesc1: '通过给予长期利益相关者更多的投票权，网络可以确保决策由那些对网络未来投入最多的人做出。',
+                infoVeModelDesc2: '该模型为治理公共产品资金提供了一个透明的框架，进一步朝着更加去中心化和社区驱动的方向发展。',
+                infoGlossaryTitle: '关键术语',
+                glossaryVeFIL: '锁定FIL时获得的治理代币。您收到的veFIL数量取决于锁定的金额和锁定期限。锁定时间越长 = veFIL越多 = 投票权越大。',
+                glossaryQuorum: '投票有效所需的最低veFIL参与百分比。这确保决策获得足够的社区支持。',
+                glossaryLockDuration: '您的FIL被锁定的时间段。范围从7天到2年（730天）。较长的期限提供更多的veFIL。',
+                glossarySnapshot: '记录veFIL余额以确定投票资格的区块高度。只有在该区块持有的veFIL才能对提案进行投票。',
+                glossaryFIP: '提议对Filecoin网络进行更改或改进的正式文件。FIP在实施前需经过社区审查。',
+                infoFormulaTitle: 'veFIL公式',
+                infoFormulaDesc: '您收到的veFIL数量根据您的锁定金额和期限计算：',
+                infoFormulaExample: '例如，锁定100 FIL 365天（1年）将给您：100 × (365/730) × 1 = 50 veFIL',
+
+                // Community Feedback Page
+                feedbackPageTitle: '社区反馈',
+                feedbackPageDesc: '分享您的想法，为他人的建议投票，帮助塑造veFIL治理的未来。',
+                suggestFeature: '建议功能或改进',
+                suggestionTitlePlaceholder: '功能标题...',
+                suggestionDescPlaceholder: '描述您的建议...',
+                typeFeature: '新功能',
+                typeImprovement: '改进',
+                typeBugFix: '错误修复',
+                submitSuggestion: '提交建议',
+                communitySuggestions: '社区建议'
             }
         };
 
@@ -1795,21 +2518,34 @@
         // Wallet connection
         document.getElementById('walletBtn').addEventListener('click', () => {
             if (!walletConnected) {
-                connectWallet();
+                openWalletDisclaimer();
             } else {
                 toggleAccountPanel();
             }
         });
 
+        function openWalletDisclaimer() {
+            document.getElementById('walletDisclaimerModal').classList.add('active');
+        }
+
+        function closeWalletDisclaimer() {
+            document.getElementById('walletDisclaimerModal').classList.remove('active');
+        }
+
+        function proceedWithDemoWallet() {
+            closeWalletDisclaimer();
+            connectWallet();
+        }
+
         function connectWallet() {
             // Simulate wallet connection
             walletConnected = true;
             userAddress = 'f1qpensj4o3xfxlwthzvb7e2kzqnm5wmhxqnbxwhi';
-            
+
             const walletBtn = document.getElementById('walletBtn');
             walletBtn.textContent = userAddress.substring(0, 6) + '...' + userAddress.substring(38);
             walletBtn.className = 'wallet-connected';
-            
+
             updateAccountPanel();
         }
 
@@ -2381,6 +3117,153 @@
             document.getElementById('countUpcoming').textContent = `(${counts.upcoming})`;
         }
 
+        // Community Suggestions
+        let suggestions = [
+            {
+                id: 1,
+                title: 'Add delegation support for veFIL',
+                description: 'Allow users to delegate their veFIL voting power to trusted representatives without transferring their tokens.',
+                type: 'feature',
+                votes: 24,
+                userVote: null,
+                date: '2026-01-25'
+            },
+            {
+                id: 2,
+                title: 'Mobile-responsive improvements',
+                description: 'Improve the mobile experience with better touch interactions and responsive layouts for smaller screens.',
+                type: 'improvement',
+                votes: 18,
+                userVote: null,
+                date: '2026-01-24'
+            },
+            {
+                id: 3,
+                title: 'Add proposal discussion threads',
+                description: 'Enable community members to discuss proposals directly within the governance tool before voting.',
+                type: 'feature',
+                votes: 31,
+                userVote: null,
+                date: '2026-01-23'
+            },
+            {
+                id: 4,
+                title: 'Show historical voting data',
+                description: 'Display past voting history and participation metrics for transparency and accountability.',
+                type: 'improvement',
+                votes: 15,
+                userVote: null,
+                date: '2026-01-22'
+            },
+            {
+                id: 5,
+                title: 'Email notifications for proposals',
+                description: 'Option to receive email alerts when new proposals are created or when voting periods are ending.',
+                type: 'feature',
+                votes: 22,
+                userVote: null,
+                date: '2026-01-20'
+            }
+        ];
+
+        let nextSuggestionId = 6;
+
+        function renderSuggestions() {
+            const container = document.getElementById('suggestionsList');
+            const sortedSuggestions = [...suggestions].sort((a, b) => b.votes - a.votes);
+
+            container.innerHTML = sortedSuggestions.map(s => `
+                <div class="suggestion-card">
+                    <div class="suggestion-votes">
+                        <button class="vote-btn ${s.userVote === 'up' ? 'voted-up' : ''}" onclick="voteSuggestion(${s.id}, 'up')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+                        <span class="vote-count">${s.votes}</span>
+                        <button class="vote-btn ${s.userVote === 'down' ? 'voted-down' : ''}" onclick="voteSuggestion(${s.id}, 'down')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="suggestion-content">
+                        <div class="suggestion-title">${s.title}</div>
+                        <div class="suggestion-description">${s.description}</div>
+                        <div class="suggestion-meta">
+                            <span class="suggestion-tag ${s.type}">${getTypeLabel(s.type)}</span>
+                            ${formatDate(s.date)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                en: { feature: 'Feature', improvement: 'Improvement', bug: 'Bug Fix' },
+                zh: { feature: '功能', improvement: '改进', bug: '错误修复' }
+            };
+            return labels[currentLang][type] || type;
+        }
+
+        function voteSuggestion(id, direction) {
+            const suggestion = suggestions.find(s => s.id === id);
+            if (!suggestion) return;
+
+            // Remove previous vote if exists
+            if (suggestion.userVote === 'up') {
+                suggestion.votes--;
+            } else if (suggestion.userVote === 'down') {
+                suggestion.votes++;
+            }
+
+            // Apply new vote or toggle off
+            if (suggestion.userVote === direction) {
+                suggestion.userVote = null;
+            } else {
+                suggestion.userVote = direction;
+                if (direction === 'up') {
+                    suggestion.votes++;
+                } else {
+                    suggestion.votes--;
+                }
+            }
+
+            renderSuggestions();
+        }
+
+        function addSuggestion() {
+            const title = document.getElementById('suggestionTitle').value.trim();
+            const description = document.getElementById('suggestionDesc').value.trim();
+            const type = document.getElementById('suggestionType').value;
+
+            if (!title || !description) {
+                alert(currentLang === 'zh' ? '请填写标题和描述' : 'Please fill in both title and description');
+                return;
+            }
+
+            const newSuggestion = {
+                id: nextSuggestionId++,
+                title: title,
+                description: description,
+                type: type,
+                votes: 1,
+                userVote: 'up',
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            suggestions.unshift(newSuggestion);
+            renderSuggestions();
+
+            // Clear form
+            document.getElementById('suggestionTitle').value = '';
+            document.getElementById('suggestionDesc').value = '';
+            document.getElementById('suggestionType').value = 'feature';
+
+            alert(currentLang === 'zh' ? '建议已提交！' : 'Suggestion submitted!');
+        }
+
         // Initialize
         updateFilterCounts();
         renderProposals();
@@ -2388,6 +3271,7 @@
         renderDepositsTable();
         renderHoldersChart();
         renderHoldersTable();
+        renderSuggestions();
     </script>
 </body>
 </html>
