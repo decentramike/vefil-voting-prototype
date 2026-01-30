@@ -2538,6 +2538,37 @@
             return Number.isFinite(percentage) ? percentage.toFixed(decimals) : '0.0';
         }
 
+        // Auto-refresh expired proposals for demo purposes
+        // Moves expired proposal dates forward by 1 week increments to keep proposals cycling
+        function refreshExpiredProposals() {
+            const now = new Date();
+            const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+
+            proposals.forEach(p => {
+                const endDate = new Date(p.endTime);
+
+                // If proposal has expired, move dates forward by enough weeks to make it active
+                if (now > endDate) {
+                    const startDate = new Date(p.startTime);
+                    const createdDate = new Date(p.created);
+
+                    // Calculate how many weeks have passed since expiry
+                    const weeksExpired = Math.ceil((now - endDate) / oneWeekMs);
+                    const shiftMs = weeksExpired * oneWeekMs;
+
+                    // Shift all dates forward
+                    p.created = new Date(createdDate.getTime() + shiftMs).toISOString().split('T')[0];
+                    p.startTime = new Date(startDate.getTime() + shiftMs).toISOString().split('T')[0];
+                    p.endTime = new Date(endDate.getTime() + shiftMs).toISOString().split('T')[0];
+
+                    // Reset to active status if it was passed/failed
+                    if (p.status === 'passed' || p.status === 'failed') {
+                        p.status = 'active';
+                    }
+                }
+            });
+        }
+
         // Navigation
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
@@ -3427,6 +3458,7 @@
         }
 
         // Initialize
+        refreshExpiredProposals();  // Auto-cycle expired proposals for demo
         updateFilterCounts();
         renderProposals();
         renderDepositsChart();
